@@ -20,8 +20,8 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Testy jednostkowe w aplikacjach rozproszonych.'
-copyright = '2019, Krzysztof Kruk, Jakub W., Maciej Pilch'
-author = 'Krzysztof Kruk, Jakub W., Maciej Pilch'
+copyright = '2019, Krzysztof Kruk, Jakub Wołynko, Maciej Pilch'
+author = 'Krzysztof Kruk, Jakub Wołynko, Maciej Pilch'
 
 # The short X.Y version
 version = ''
