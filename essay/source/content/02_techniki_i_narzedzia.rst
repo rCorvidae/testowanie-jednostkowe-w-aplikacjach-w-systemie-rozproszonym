@@ -118,8 +118,111 @@ uruchamia. W efekcie, wyświetlony zostaje następujący komunikat::
 Dockerfile
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+`Dockerfile <https://docs.docker.com/engine/reference/builder/>`_ 
+jest sposobem na stworzenie obrazu Dockera. Jest to plik tekstowy deklarujący
+postać obrazu.
+
+Do stworzenia obrazu należy wykorzystać dostępne słowa dla języka plików
+Dockerfile. Najczęściej przybiera to postać trzech kroków: 
+
+    #) wybór obrazu bazowego
+
+    Obraz bazowy pozwala na stworzenie finalnego obrazu dostosowanego do potrzeb
+    użytkownika. W tym celu wykorzystuje się słowo kluczowe "FROM" oraz
+    nazwę obrazu (z opcjonalną jego wersją - tagiem). Należy pamiętać, by 
+    budowany obraz był jak najmniejszy oraz spełniał 
+    `dobre praktyki <https://docs.docker.com/develop/develop-images/dockerfile_best-practices/>`_
+
+    #) przygotowanie środowiska
+
+    W ramach przygotowania środowiska należy doinstalować wybrane pakiety
+    oprogramowania z użyciem menadżera pakietów dostępnego dla wybranego
+    obrazu Dockera. Kolejnym krokiem jest przygotowanie aplikacji, skopiowanie
+    kodu źródłowego i jego ewentualna kompilacja.
+
+    W przypadku budowania zaawansowanych aplikacji zaleca się stosowania
+    techniki `multi-stage build <https://docs.docker.com/develop/develop-images/multistage-build/>`_
+    dla redukcji rozmiaru ostatecznego obrazu. Do budowy obrazu wykorzystuje
+    się m.in. polecenia: RUN - uruchamia skrypt powłoki, COPY - kopiuje pliki.
+
+    Podstawowym założeniem jest jeden stworzenie jednego obrazu dla
+    jednej aplikacji. Jest to dobrą praktyką, która później ułatwia
+    uruchomienie oprogramowania w systemie orkiestratorowanym np.
+    w Kubernetesie.
+
+    #) uruchomienie aplikacji
+
+    Wybranie domyślnej aplikacji, która powinna być wykonywana przy starcie
+    kontenera. W tym celu wykorzystuje się jedno z poleceń: CMD, ENTRYPOINT.
+
+Ostatecznie, obraz przyjmuje podobną postać do poniższej::
+
+    FROM alpine:3.7
+
+    RUN apk update --purge && \
+        apk add --purge --no-cache bash
+
+    CMD ["/usr/bin/env", "bash", "-c", "echo 'Hello World'"]
+
+Po zbudowaniu obrazu z pomocą polecenia (Dockerfile musi się znajdować
+w katalogu dostępnego w $(pwd) )::
+
+    $ docker build -t test-img .
+
+Docker buduje obraz, który może następnie zostać uruchomiony::
+
+    $ docker run -it --rm test-img
+    Hello World
+
+
 Docker-compose
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`Docker Compose <https://docs.docker.com/compose/>`_
+pozwala połączyć i uruchomić aplikację składającą się z wielu kontenerów.
+Docker-compose nie jest dostępny domyślnie po instalacji Docker Engine na
+komputerze. Instalacja jest wyjątkowo prosta na każdej z dystrybucji linuksa
+i ogranicza się do::
+
+    # pip install docker-compose
+
+Docker-compose pozwala na szybkie przetestowanie gotowej aplikacji. Owa szybkość
+bierze się z automatycznej konfiguracji sieci prywatnej dla i przypisywania
+do niej każdego z kontenerów. Pozwala również na proste określenie adresu
+contenera poprzez wykorzystanie nazwy usługi.
+
+Poniższy docker-compose.yml pozwala na uruchomienie serwera NGINX i wysłanie
+10 zapytań::
+
+    version: '3'
+    services:
+        website:
+            image: nginx:stable-alpine
+            ports:
+                - "80:80"
+        client:
+            image: "centos:7"
+            command:
+                - "/usr/bin/env"
+                - "bash"
+                - "-c"
+                - "for _ in {1..10}; do curl website:80; sleep 1; done"
+
+Tak skonstruowaną aplikacje uruchamia się za pomocą polecenia::
+
+    $ docker-compose up
+
+Efektem będą wyświetlane logi z domyślnej strony serwera NGINX. Docker-compose
+automatycznie uruchomił dwa kontenery/usługi o nazwach "website" i "client".
+Sieć pomiędzy kontenerami została skonfigurowana w taki sposób, że "client"
+może odwoływać się do towarzyszących mu kontenerów poprzez nazwę usług,
+co udowadnia polecenie "curl website:80".
+
+Powyżej skonstruowana aplikacja nadal działa z poziomu systemu operacyjnego
+hosta. Warto zaznaczyć, iż format pliku docker-compose.yml umożliwia
+stosunkowo bezproblemową integrację z Docker Swarm, rozproszonego orkiestratora
+kontenerów. W dalszej części powyższa aplikacja uruchomiona zostanie
+w clustrze Kubernetesa.
 
 Kubernetes
 ````````````````````````````````````````````````````````````````````````````````
