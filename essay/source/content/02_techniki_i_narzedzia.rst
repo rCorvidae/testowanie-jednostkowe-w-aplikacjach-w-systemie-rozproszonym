@@ -226,3 +226,191 @@ w clustrze Kubernetesa.
 
 Kubernetes
 ````````````````````````````````````````````````````````````````````````````````
+
+`Kubernetes <https://kubernetes.io/>`_ (w skrócie K8s) jest otwartym systemem 
+zarządzania aplikacji skontenteneryzowanych. Umożliwia on szereg czynności
+jak zarządzanie połączeniem sieciowym, montowaniem zasobów dyskowych
+w systemie rozproszonym, monitorowaniem obciążenia, skalowania i czuwania
+nad stanem kontenerów i inne.
+
+Architektura Kubernetesa jest skomplikowana i zaleca się zapoznanie poprzez
+`dokumentację <https://kubernetes.io/docs/concepts/overview/components/>`_.
+K8s wyróżnia następujące elementy:
+
+    * Dla węzła głównego (master), m.in.:
+
+      * *kube-apiserver*:  udostępnia Rest API
+      * *etcd*: baza danych klucz-wartość
+      * *kube-scheduler*: scheduler
+
+    * Dla pozostałych węzłów (nodes), m.in.:
+
+      * *kubelet*: agent uruchamiający *Pod*\y na danym węźle
+      * *kube-proxy*: zarządzanie połączeniem sieciowym
+      * *container-runtime*: jeden z - Docker, containerd, rkt, cri-o
+
+Ze względu na złożoność architektury Kubernetesa, również jego instalacja
+nie jest zadaniem trywialnym. Należy pamiętać o wielu zależnościach,
+zabezpieczeniach etc. Poleca się stosowanie gotowych systemów chmurowych.
+Niemniej jednak istnieją instalatory upraszczające znacząco instalację
+klastra, m.in. `kubeadm <https://kubernetes.io/docs/setup/independent/create-cluster-kubeadm/>`_,
+`kubespray <https://github.com/kubernetes-sigs/kubespray>`_,
+`kops <https://github.com/kubernetes/kops>`_ i inne. Istnieją również
+uproszczone metody uruchomienia środowiska pod postacią
+`minikube <https://kubernetes.io/docs/tasks/tools/install-minikube/>`_,
+`k3s <https://k3s.io/>`_,
+`microk8s <https://microk8s.io/>`_ i inne systemy. Wybór właściwego zależy
+od potrzeb użytkownika i złożoności posiadanej infrastruktury.
+
+Obiekty
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`Obiektem <https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/>`_
+w Kubernetesie jest każda intencja przekazana do klastra. Taką intencją może
+być chęć uruchomienia konkretnego obrazu, konfiguracja usługi sieciowej,
+przechowywanie zaszyfrowanych danych wrażliwych, konfiguracja przestrzeni
+użytkownika, akcje dla cron'a, itp.
+
+Obiekty najczęściej definiuje się z użyciem plików w formacie `YAML <https://yaml.org/>`_.
+Podstawowy schemat jest następujący::
+
+    apiVersion: <<wersja api w zależności od porządanej funkcjonalności>>
+    kind: <<rodzaj obiektu>>
+    metadata:
+      name: <<unikalna nazwa obiektu>>
+      labels: <<etykiety umożliwiające identyfikację zadań przez K8s>
+        key: value
+    spec: <<specyfikacja obiektu, zależy od jego rodzaju>>
+
+Niezwykle istotnym elementem w systemie Kubernetesa są `label'e (etykiety) <https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/>`_.
+Umożliwiają one identyfikację i grupowanie zadań. Grupowanie zapewnia
+element K8s'a zwany selektorem (label selector).
+
+.. note::
+    Poniższy opis dostępnych obiektów w K8s zapewnia jedynie minimalną
+    wiedzę z zakresu działania narzędzia. Zaleca się zapoznanie w pełni
+    z dokumentacją.
+
+Pod
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`Pod <https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/>`_ jest
+podstawowym obiektem w Kubernetesie zapewniającym działania i uruchomienie
+kontenerów. Pod jest abstrakcją kontenera w Kubernetesie. Pozwala jednakże
+na uruchomienie wielu kontenerów jednym Podzie.
+
+Uruchomienie prostego standardowego hello-world odbywa się w następujących
+krokach:
+
+    #. Stworzenie pliku YAML z następującą treścią (wcięcia są istotne!)::
+
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          name: hello-world-pod
+          labels:
+            app: hello-world
+        spec:
+          containers:
+          - name: hello-world-container
+            image: hello-world
+
+    #. Wykonanie polecenia::
+    
+        $ kubectl create -f nazwa_pliku.yml
+
+    #. Sprawdzenie logów::
+
+        $ kubectl logs hello-world-pod
+
+Wraz z zakończeniem działania Poda, nie zostaje on uruchomiony ponownie.
+Ma to istotne znaczenie, o ile próbujemy zapewnić pewne działanie aplikacji.
+Aby zapewnić ciągłość działania, należy wykorzystać obiekty wyższego rzędu
+zapewnione przez K8s.
+
+
+Deployment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`Deployment <https://kubernetes.io/docs/concepts/workloads/controllers/deployment/>`_
+jest obiektem umożliwiającym zdefiniowanie porządanego stanu aplikacji. Po
+utworzeniu tego obiektu, automatycznie on zarządza ilością replik wybranego
+obrazu pilnując by zawsze określona ich ilość była funkcjonalna.
+
+Doskonałym zastosowaniem tego obiektu jest uruchomienie aplikacji
+bezstanowej np. prostego front-endu który komunikuje się z backendem. Dodatkowo,
+umożliwia on wykonywanie czynności niezwykle istotnych z punktu widzenia
+HA (High Availability) m.in. rolling deployments czy skalowanie.
+
+Przykład uruchamiający serwer NGINX jest następujący::
+    
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: nginx-deployment
+      labels:
+        app: nginx-server
+        purpose: test-hello-world
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: nginx
+          purpose: test-hello-world
+      template:
+        metadata:
+          labels:
+            app: nginx
+            purpose: test-hello-world
+        spec:
+          containers:
+          - name: nginx-container
+            image: nginx
+            ports:
+            - containerPort: 80
+
+Tym sposobem uruchomiony zostaje serwer nginx. Nie został on jednak
+udostępniony światu. Nie można w rozsądny sposób skomunikować się 
+z serwerem. W tym celu należy stworzyć nowy obiekt zwany: Service.
+
+Service
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`Service (Usługi) <https://kubernetes.io/docs/concepts/services-networking/service/>`_
+zapewnia dostęp do kontenerów poprzez sieć. Jest to o tyle istotne, iż kontenery
+w swej naturze są śmiertelne, tj. mogą zostać zniszczone. Nie byłoby zalecane
+ręczne infrastruktury sieciowej manualnie. Usługi automatyzują dynamiczną
+konfigurację sieci pomiędzy kontenerami a światem zewnętrznym.
+
+Ich działanie, w głównej mierze opiera się na wykorzystaniu i dopasowaniu
+etykiet. Z pomocą właśnie etykiet Usługa wie, dla których Pod'ów należy
+skonfigurować DNSy i udostępnić właściwe porty.
+
+Przykład współpracujący z Deployment'em określonym powyżej::
+
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: nginx-service
+      labels:
+        app: nginx
+        purpose: test-hello-world
+    spec:
+      selector:
+        app: nginx
+        purpose: test-hello-world
+      ports:
+      - protocol: TCP
+        port: 80
+        targetPort: 80
+
+Tworzy on obiekt Service typu ClusterIP (domyślny). Umożliwia on
+dostęp do strony kontenera pod stałym adresem IP, niezależnie
+od obecnego adresu IP kontenera. Aby uzyskać udostępniony
+adres IP, należy użyć poniższego polecenia::
+
+    $ kubectl get service nginx-service -o jsonpath='{ .spec.clusterIP }'
+
+Po uzyskaniu adresu można połączyć się z wybraną aplikacją pod warunkiem,
+że znajduje się na tam, gdzie został zainstalowany klaster.
+
