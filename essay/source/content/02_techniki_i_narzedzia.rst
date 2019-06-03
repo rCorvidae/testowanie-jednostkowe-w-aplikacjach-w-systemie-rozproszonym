@@ -42,9 +42,6 @@ Narzędzia CI/CD
     na dodatkowych linkach (w języku angielskim). Przedstawić rację
     istnienia danego narzęcia. Ten pod-rozdział odnosi się do rozdziału trzeciego
 
-Jenkins
-````````````````````````````````````````````````````````````````````````````````
-
 Docker
 ````````````````````````````````````````````````````````````````````````````````
 
@@ -414,3 +411,59 @@ adres IP, należy użyć poniższego polecenia::
 Po uzyskaniu adresu można połączyć się z wybraną aplikacją pod warunkiem,
 że znajduje się na tam, gdzie został zainstalowany klaster.
 
+Jenkins
+````````````````````````````````````````````````````````````````````````````````
+
+`Jenkins <https://jenkins.io/>`_ jest otwarty system automatyzacji umożliwiający
+w łatwy sposób wdrożenie CI/CD.
+
+Jenkins pozwala na stworzenie rodzaju linii produkcyjnej dla oprogramowania,
+w który
+
+.. warning::
+    Zobacz tutaj: https://www.stratoscale.com/blog/devops/practical-devops-use-case-github-jenkins-docker/
+
+Instalacja
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Jenkinsa zainstalować można na platformach obsługujących maszynę wirtualną
+Javy. Oznacza to, iż możliwa jest instalacja na gołym metalu (bare-metal).
+Niemniej jednak, instalacja z użyciem poniższych środowisk pozwala na znacznie
+szybszą konfigurację i jest wstępem do rozwiązania chmurowego.
+
+**Docker**
+
+Instalacja z pomocą Docker'a ogranicza się praktycznie do jednolinijkowego
+polecenia. W wersji minimalistycznej, poleceniem tym jest::
+
+    $ docker run -p 8080:8080 -p 50000:50000 jenkins/jenkins:lts
+
+Powyższa instalacja jest niemniej jednak dość naiwna, gdyż nie zachowuje
+konfiguracji w systemie plików. Dokładniejsze informacje znajdują się
+w `dokumentacji <https://github.com/jenkinsci/docker/blob/master/README.md>`_.
+
+**Kubernetes i Helm**
+
+Jednym ze sposobów instalacji Jenkinsa w Kubernetesie jest wykorzystanie
+menadżera pakietów, `Helm <https://helm.sh/>`_.
+
+Zakładając, iż Helm został poprawnie zainstalowany i skonfigurowany,
+instalacja Jenkinsa ogranicza się do edycji pliku `konfiguracyjnego <https://github.com/helm/charts/blob/master/stable/jenkins/values.yaml>`
+i wykonania poniższej instrukcji::
+
+    $ helm install --name jenkins stable/jenkins -f confg_file.yml
+
+Opis dostępnych parametrów znajduje się w `dokumentacji <https://github.com/helm/charts/tree/master/stable/jenkins>`_.
+Niezbędne jest również udostępnienie przestrzeni dyskowej działającej 
+w systemie rozproszonym np. NFS. Taki zasób należy następnie zamontować
+w Kubernetesie za pomocą `PersistentVolume/PersistentVolumeClaim <https://kubernetes.io/docs/concepts/storage/persistent-volumes/>`_ albo z pomocą `StorageClass <https://kubernetes.io/docs/concepts/storage/storage-classes/>`_.
+
+Pipeline CI/CD
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. Commit
+#. Zbuduj
+#. Uruchom testy
+#. Release
+#. Deploy/Deliver
+#. "Dalsze testy na produkcji" :)  
