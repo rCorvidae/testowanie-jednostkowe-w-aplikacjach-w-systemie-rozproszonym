@@ -8,7 +8,7 @@ Techniki testowania jednostkowego
 Pojedyncze testy
 ````````````````````````````````````````````````````````````````````````````````
 
-Test na zbiorze danych
+Data Driven Unit Test
 ````````````````````````````````````````````````````````````````````````````````
 
 Stubbing
@@ -418,7 +418,10 @@ Jenkins
 w łatwy sposób wdrożenie CI/CD.
 
 Jenkins pozwala na stworzenie rodzaju linii produkcyjnej dla oprogramowania,
-w który
+w której oprogramowanie jest budowane, testowane i na samym końcu dostarczane
+do klienta. W celu zapewnienia szeregu użytecznych cech i rozszerzalności
+narzędzie wprowadza możlwiość stosowania dodatkowych pluginów, dzięki którym
+wprowadza się nowe funkcjonalności do systemu.
 
 .. warning::
     Zobacz tutaj: https://www.stratoscale.com/blog/devops/practical-devops-use-case-github-jenkins-docker/
@@ -462,8 +465,52 @@ Pipeline CI/CD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. Commit
+
+   Programista tworzy kod. Wraz z wysłaniem kodu do repozytorium, Jenkins
+   zostaje poinformowanych o zmianach za pomocą `webhook-a <https://en.wikipedia.org/wiki/Webhook>`_.
+   Jenkins przechodzi do kolejnego kroku.
+
 #. Zbuduj
+
+   W tym etapie budowana jest aplikacja, co najmniej w wersji do testów.
+   Etap budowania jest również swego rodzaju testem, sprawdzający integralność
+   projektu sugerującym, że kod po ściągnięci z repozytorium również skompiluje
+   się na maszynie lokalnej. W przypadku nieudanego "builda", właściwie
+   skonfigurowany Jenkins poinformuje winowajcę, team i menadżera..., dzięki
+   czemu na przyszłość kod stanie się lepszy.
+
+   Budowanie na tym etapie zalecane jest do zbudowania kontenera
+   i ewentulane udostępnienie go we własciwym rejesetrze 
+   (np. `Docker Hub <https://hub.docker.com/>`_).
+
 #. Uruchom testy
+
+   Posiadając zbudowany kontener ze zbudowaną aplikacją do testów, pozostaje
+   uruchomić testy przez Jenkinsa. Obdywa się to w sposób automatyczny.
+   W zależności od rezultatów, Jenkins pozwoli na dalsze budowanie projektu.
+
+   Zupełnym minimum produkcyjnym jest uruchomienie testów jednostkowych.
+   Nie jest to wystarczający zestaw testów. W tak skonfigurowanym łańcuchu
+   testów należy zbadać również np. testy systemowe zostały uruchomione na
+   pewnym etapie. Zależy to oczywiście od rodzaju projektu a przede
+   wszystkim od norm obowiązującyh w danym przedsiębiorstwie.
+
 #. Release
+   
+   W tej fazie, Jenkins buduje kontener z wersją aplikacji gotową do
+   użytkowania w systemie. 
+
 #. Deploy/Deliver
+
+   Zakładając pomyślnie przejście wcześniejszych etapów, aplikację
+   można zainstalować w zasobach docelowych.
+
 #. "Dalsze testy na produkcji" :)  
+
+   Powyższe humorystyczne stwierdzenie, dość często spotykane - niestety,
+   prezentuje jednak dość ważny fakt. Nie ważne jak dobrze przetestowane
+   jest oprogramowanie, finalne testy przeprowadzane są dopiero
+   w środowisku docelowym klienta. Dopiero w środowisko docelowe
+   pozwala na pełne przetestowanie software'u zgodnie ze wszystkimi
+   scenariuszami. Kompania testowa pozwala w znaczącym stopniu 
+   zredukować możliwości wystąpienia problemów.
