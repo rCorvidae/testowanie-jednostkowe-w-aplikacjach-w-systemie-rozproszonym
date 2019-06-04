@@ -5,14 +5,76 @@ Techniki i narzędzia dla testów jednostkowych
 Techniki testowania jednostkowego
 --------------------------------------------------------------------------------
 
+Poniższy rozdział bazuje głównie na doświadczeniach własnych z zakresu
+testowania aplikacji. Ma on jednak odbicie w doświadczeniach innych
+programistów (zamieszczone stosowne referencje). W przypadku konfliktów
+terminologii, prezentowane są źródła na których treść jest bazowana.
+
 Pojedyncze testy
 ````````````````````````````````````````````````````````````````````````````````
+
+Testowanie jednostkowe jest, jak nazwa wskazuje, techniką testowania
+pojedynczych jednostek oprogramowania np. funkcji, klas, modułów - przeważnie
+funkcji/metod.
+
+W przypadku takich testów, najczęściej testuje się pojedynczą funkcję
+i analizuje względem oczekiwanego rezultatu. Jeśli wynik danego testu
+jednotkowego jest rozbieżny z oczekiwanym rezultatem, kończy się on
+niepowodzeniem. Ilość powodzeń/niepowodzeń zbioru testów jest następnie
+prezentowana w postaci podsumowania generowanego przez wybrany framework.
+
+Przykładowo, od jednostki oprogramowania (funkcji) oczekuje się zwrócenie
+wartości liczby znajdującym się na wybranej pozycji w ciągu Fibbonacciego,
+który przybiera następującą postać::
+
+    index: 0, 1, 2, 3, 4, 5, 6
+    value: 1, 1, 2, 3, 5, 8, 13, ...
+
+Oczekiwania wobec funkcji Fibbonaciego prezentowane są w postaci następujących
+testów. Testy prezentują nie tylko oczekiwany efekt, ale również definiują
+API, co jest jednym z założeń TDD. Oto testy::
+
+    assert 1 == fib(0)
+    assert 5 == fib(4)
+    assert 8 == fib(5)
+
+Kod spełniający wyżej wymienione wymagania (inaczej testy), jest następujący::
+
+    def fib(index):
+        if index < 2:
+            return 1
+
+        a, b = 2, 3
+        for _ in range(2, index):
+            a, b = b, a + b
+
+        return a
+
+Przykład ilustruje potęgę testowania jednostkowego, ale również i jego wady.
+Do zalet z pewnością jest zaliczenie testów do narzędzi umożliwiających
+stworzenie oprogramowania lepszej jakości. Do wad należy często czasochłonność
+oraz niemożność całkowitego pokrycia testami każdego przypadku. Dla powyższego
+przykładu należy się zastanowić, czy wartość index < 0 powinna być dozwolona,
+czy funkcja nie powinna zwrócić np. wyjątku.
 
 Data Driven Unit Test
 ````````````````````````````````````````````````````````````````````````````````
 
+Data Driven Unit Test jest rozszerzeniem koncepcji pojedynczego testu. Jest
+to sposób testowania wybranego komponentu *obszernym* pakietem danych. Taki
+sposób testowania jest wspierany przez niektóre systemy testowania np.
+`Qt Tests <https://doc.qt.io/qt-5/qttestlib-tutorial2-example.html>`_,
+`MS Unit Test Framework <https://docs.microsoft.com/en-us/visualstudio/test/how-to-create-a-data-driven-unit-test?view=vs-2019>`_.
+
+
 Stubbing
 ````````````````````````````````````````````````````````````````````````````````
+
+https://martinfowler.com/articles/mocksArentStubs.html
+https://spring.io/blog/2007/01/15/unit-testing-with-stubs-and-mocks/
+https://stackoverflow.com/questions/3459287/whats-the-difference-between-a-mock-stub?lq=1
+https://docs.microsoft.com/en-us/previous-versions/msp-n-p/ff798400(v=pandp.10)
+https://circleci.com/blog/how-to-test-software-part-i-mocking-stubbing-and-contract-testing/
 
 Mock objects
 ````````````````````````````````````````````````````````````````````````````````
