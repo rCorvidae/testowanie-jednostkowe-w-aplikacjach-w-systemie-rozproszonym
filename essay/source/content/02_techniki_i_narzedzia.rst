@@ -66,43 +66,75 @@ sposób testowania jest wspierany przez niektóre systemy testowania np.
 `Qt Tests <https://doc.qt.io/qt-5/qttestlib-tutorial2-example.html>`_,
 `MS Unit Test Framework <https://docs.microsoft.com/en-us/visualstudio/test/how-to-create-a-data-driven-unit-test?view=vs-2019>`_.
 
+Technika ta polega na wykorzystaniu danego źródła danych np. z pliku CSV
+i przekazaniu tych danych do testowanej funkcji. W przypadku niepowodzenia,
+framework testowy stosowanie poinformuje o problemie. Pozwala to na 
+automatyzację testowania i zwiększenia prawdopodobieństwa wykrycia potencjalnych
+awarii.
 
-Stubbing
+Stubbing i Mock obiekty
 ````````````````````````````````````````````````````````````````````````````````
 
-https://martinfowler.com/articles/mocksArentStubs.html
-https://spring.io/blog/2007/01/15/unit-testing-with-stubs-and-mocks/
-https://stackoverflow.com/questions/3459287/whats-the-difference-between-a-mock-stub?lq=1
-https://docs.microsoft.com/en-us/previous-versions/msp-n-p/ff798400(v=pandp.10)
-https://circleci.com/blog/how-to-test-software-part-i-mocking-stubbing-and-contract-testing/
+Technika wykorzystująca **mock obiekty** (atrapa obiektu [#martin_agile]_) polega
+na zastąpieniu kodu dziedzinowego kodem symulującym jego **zachowaniem** 
+[#endotesting]_. Przykładowo, testowany pojedynczy komponent (np. funkcja)
+wymaga połączenia z bazą danych. Wymieniona technika w takim przypadku
+zaleca zasymulować działanie tej bazy poprzez zwrócenie oczekiwanej wartości,
+eliminując konieczność instalacji, połączenia i odpytywania 
+produktu bazodanowego. Wykorzystanie atrapy obiektu redukuje złożoność
+testu i czyni go stabilniejszym, gdyż nie wywołuje kaskady innych zapytań,
+funkcji, połączeń sieciowych mogących ulec awarii.
 
-Mock objects
-````````````````````````````````````````````````````````````````````````````````
+Stosowanie tej techniki ma następujące korzyści:
 
-Frameworki do testów
---------------------------------------------------------------------------------
+    #. Zastosowanie reguły DIP
 
-.. note::
-    Omówić narzędzie pod kątem wyżej wymienionych podpunktów. Jeśli
-    framework testówy nie obsługuje np. Mock Objectów (np. w c++), uzasadnić
-    dlaczego (brak refleksji statycznej/dynamicznej).
+        Stosowanie atrap nakazuje programiście zastanowienie się, czy dany
+        komponent powinien bazować na zaprogramowanej na sztywno
+        infrastrukturze. Dobrą praktyką jest zastosowanie reguły DIP, czyli
+        odwrócenie zależności. W takim przypadku, testowany komponent
+        uzależniany jest od interfejsu, a nie od konkretnej klasy, co pozwala
+        na rozszerzalność kodu.
 
-Java: JUnit 5
-````````````````````````````````````````````````````````````````````````````````
+    #. Możliwość odtworzenia rzadko występujących błędów/awarii
 
-Python: unittest
-````````````````````````````````````````````````````````````````````````````````
+        Wprowadzenie atrap pozwala na zastosowanie "awarii na żądanie".
+        Zakładając, iż testowany komponent wymaga połączenia z serwerem,
+        technika Mock Object pozwala na implementację odpowiedzi serwera
+        z wybranym kodem błędu. Możliwe staje się tym samym przetestowanie
+        funkcjonalności w sytuacjach wyjątkowych, które innym sposobem jest
+        ciężko odworzyć.
 
-Go: testing
-````````````````````````````````````````````````````````````````````````````````
+    #. Łatwość użycia z nowoczesnymi językami i bibliotekami
+
+        Technika obiektu atrapy jest łatwo stosowalna z nowoczesnymi językami
+        udostępniającymi refleksję np. Java i framework `Mockito <https://site.mockito.org/>`_.
+        Stworzenie mock-objectu ogranicza się do zastosowania kilku linii kodu.
+
+Czasem może wystąpić potrzeba przetestowania funkcjonalności testowanej
+funkcji pod względem *stanu* obiektu do którego ta funkcjonalność posiada
+referencję. Innymi słowy, oczekuje się, iż testowana funkcjonalność zmieni
+stan innego obiektu. Technikę tę nazywa się *Stubbing*. Do badania stanu
+końcowego, wykorzystuje się zaimlementowany obiekt o nazwie stub, co
+oznacza, cytując:
+
+    "**Stub** zapewnia odpowiedź do zapytania utworzonego podczas testów,
+    nie odpowiadając innym zapytaniom, poza tymi zaprogramowanymi w teście"
+    -- źródło: [#mocksArentStubs]_
+
+Cykl testowania wykorzystujący Stub'y może przyjąć następującą postać
+(za `źródłem <https://stackoverflow.com/a/17810004/11084875>`_):
+
+    #. Konfiguracja - przygotowanie obiektu testu i stworzenie instancji klasy implementującej stan Stub'a
+
+    #. Wykonanie - wykonanie testowanego komponentu
+
+    #. Weryfikacja stanu - sprawdzenie, czy stan obiektu Stub'a jest zgodny z oczekiwaniem
+
+    #. Zniszczenie obiektu testowego - uruchomienie destruktorów lub Garbage Collectora
 
 Narzędzia CI/CD
 --------------------------------------------------------------------------------
-
-.. note::
-    Stosunkowo krótko o wybranych narzędziach. Jeśli możlwie, to bazować
-    na dodatkowych linkach (w języku angielskim). Przedstawić rację
-    istnienia danego narzęcia. Ten pod-rozdział odnosi się do rozdziału trzeciego
 
 Docker
 ````````````````````````````````````````````````````````````````````````````````
@@ -576,3 +608,9 @@ Pipeline CI/CD
    pozwala na pełne przetestowanie software'u zgodnie ze wszystkimi
    scenariuszami. Kompania testowa pozwala w znaczącym stopniu 
    zredukować możliwości wystąpienia problemów.
+
+.. rubric:: Referencje
+
+.. [#martin_agile] Martin Robert C., *Zwinne wytwarzanie oprogramowania. Najlepsze zasady, wzorce i praktyki*, Helion, 2015 - str. 47
+.. [#endotesting] McKinnon T., Freeman S., Craig P., *Endo-Testing: Unit Testing with Mock Objects*, 2000
+.. [#mocksArentStubs] Cokelaer T, *Mocks Aren't Stubs'*, https://martinfowler.com/articles/mocksArentStubs.html, z dn. 2007-01-02
