@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 
@@ -73,7 +72,7 @@ func createNewCard(c echo.Context) error {
 
 // e.GET("/users/:id", getStatus)
 func getStatus(c echo.Context) error {
-	return c.String(http.StatusOK, "OK\n")
+	return c.String(http.StatusOK, "OK")
 
 }
 
@@ -90,7 +89,6 @@ func sendDataToApp2(n, sn, e, i string) (*Account, error) {
 	if err != nil {
 		return &Account{}, err
 	}
-	fmt.Println(newAccount)
 	return &newAccount, nil
 
 }
