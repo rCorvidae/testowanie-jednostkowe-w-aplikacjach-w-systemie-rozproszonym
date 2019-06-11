@@ -7,5 +7,5 @@ RUN go build -o main
 
 FROM alpine
 COPY --from=builder /go/main main
-EXPOSE 1323
+EXPOSE 5002
 CMD ["./main"]

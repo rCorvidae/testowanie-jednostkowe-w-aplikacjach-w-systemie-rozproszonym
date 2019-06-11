@@ -12,7 +12,7 @@ import (
 curl -F "name=Kuba" \
 -F "surname=W" \
 -F "email=test@test.com" \
--F "pesel=121113221819" localhost:5000/createNewCard
+-F "pesel=1211132218" localhost:5000/createNewCard
 **/
 
 //Msg is basic string structure
@@ -35,7 +35,7 @@ type Account struct {
 //Client is created client with Card Number, UID and default PIN
 type Client struct {
 	Name    string `json:"name"`
-	Surname string `json:"surename"`
+	Surname string `json:"surname"`
 	Email   string `json:"maile"`
 	PESEL   string `json:"pesel"`
 	Result  Account

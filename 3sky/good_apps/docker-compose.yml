@@ -2,21 +2,21 @@ version: "2"
 
 services:
   app1:
-    container_name: 'app1'
+    container_name: 'good-app1'
     build: A1/
     ports:
       - "5000:5000"
     network_mode: host
 
   app2:
-    container_name: 'app2'
+    container_name: 'good-app2'
     build: A2/
     ports:
       - "5001:5001"
     network_mode: host
 
   app3:
-    container_name: 'app3'
+    container_name: 'good-app3'
     build: A3/
     ports:
       - "5002:5002"
