@@ -30,7 +30,7 @@ Podstawowe założenia
 Testowanie jednostkowe aplikacji
 --------------------------------------------------------------------------------
 
-- Testy jednostkowe znajdujął się w plikach o nazwie `main_test.go`. Umieszczone zostały w każdym folderze z mikroserwisem. 
+- Testy jednostkowe znajdują się w plikach o nazwie `main_test.go`. Umieszczone zostały w każdym folderze z mikroserwisem. 
 - Same testy są napisane również w Go z wykorzystaniem bibliotek standartowych oraz `github.com/stretchr/testify/assert`.
 - Przykładowa funkcja testująca status aplikcaji: 
 
@@ -160,7 +160,7 @@ Docker-compose: testy czyli `Przykładowa symulacja sytuacji, która mogłaby mi
             CardData Card
         }
 
-#. Testy jednostkowe wciaż, działały poprawnie i nie wykryły błędu - w końcu odbywały się w ramach poszczególnych mikroserwisów.
+#. Testy jednostkowe wciaż działały poprawnie i nie wykryły błędu - w końcu odbywały się w ramach poszczególnych mikroserwisów.
 #. Jednak wynik wygladał następująco:
 
 .. figure:: /_static/Testing.png
@@ -171,6 +171,10 @@ Docker-compose: testy czyli `Przykładowa symulacja sytuacji, która mogłaby mi
 
 Wnioski
 ````````````````````````````````````````````````````````````````````````````````
-Jak zaprezentowano w powyższym przykładzie testy jednostkowe są potrzebne i pozwalają wyeliminować znaczął cześć błedów. Jednak nie są one wystarczające w świecie mikroserwisów oraz systemów rozproszonych.
-W przypadku takiej architektury najważniejszym elementem jest komunikacja zarówno między usługami jak i między developwerami. 
-Problemy te można rozwiązać stasując testy integracyjne, które wymagają więcej pracy oraz zdecydowanie lepszej organizacji. Jednak są w stanie oszczędzić zespołom nieprzyjemnych sytuacjach. 
+Jak zaprezentowano w powyższym przykładzie testy jednostkowe są potrzebne i 
+pozwalają wyeliminować znaczą cześć błedów. Jednak nie są one wystarczające w 
+świecie mikroserwisów oraz systemów rozproszonych. W przypadku takiej 
+architektury najważniejszym elementem jest komunikacja zarówno między usługami 
+jak i między developerami. Problemy te można rozwiązać stosując testy 
+integracyjne, które wymagają więcej pracy oraz zdecydowanie lepszej organizacji. 
+Jednak są w stanie oszczędzić zespołom nieprzyjemnych sytuacji. 

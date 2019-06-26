@@ -5,10 +5,10 @@ Słowo końcowe
 Wnioski
 --------------------------------------------------------------------------------
 
-.. warning::
-    Do modyfikacji wraz z napisaniem pozostałych elementów pracy
-
-Unit testy stanowią podstawę i zupełne minimum w weryfikacji mikrousług. Nie są w stanie jednak zapewnić kompleksowego pokrycia ze względu na wiążące się z mikrousługami narzuty komunikacji sieciowej. Potrzeba jest dodatkowej warstwy abstrakcji testowania aplikacji rozproszone
+Unit testy stanowią podstawę i zupełne minimum w weryfikacji mikrousług.
+Nie są w stanie jednak zapewnić kompleksowego pokrycia ze względu na wiążące 
+się z mikrousługami narzuty komunikacji sieciowej. Potrzeba jest dodatkowej 
+warstwy abstrakcji testowania aplikacji rozproszonych.
 
 Literatura
 --------------------------------------------------------------------------------
